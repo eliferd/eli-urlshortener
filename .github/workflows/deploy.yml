@@ -1,0 +1,65 @@
+name: Deploy .NET API & Angular Front
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Node for Angular
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22
+
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Install Dependencies for Angular
+        run: |
+          cd front
+          npm ci
+
+      - name: Build Angular App
+        run: |
+          cd front
+          npm run build
+
+      - name: Publish .NET API
+        run: |
+          cd back
+          dotnet publish -c Release -o ./publish
+
+      - name: Deploy Angular (Front) via SSH
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "front/dist/**"
+          target: ${{ secrets.FRONT_TARGET_PATH }}
+
+      - name: Deploy API (Back) via SSH
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "back/publish/**"
+          target: ${{ secrets.API_TARGET_PATH }}
+
+      - name: Restart API (Back) via SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            sudo systemctl restart urlshortener-api.service
