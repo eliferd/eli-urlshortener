@@ -1,0 +1,93 @@
+<main>
+
+  <br>
+
+  <div nz-row nzJustify="center" nzAlign="middle">
+
+    <div nz-col>
+
+      <h1>Welcome to Eli's URL Shortener</h1>
+
+      <p>Just past the link you want to short down below !</p>
+
+    </div>
+
+  </div>
+
+  <div nz-row nzJustify="center">
+
+    <div nz-col nzSpan="12">
+
+      <ng-template #indicatorTemplate><nz-icon nzType="loading" /></ng-template>
+
+      <nz-spin [nzSpinning]="loading" [nzIndicator]="indicatorTemplate">
+
+        <nz-input-group nzSearch nzSize="large" [nzAddOnAfter]="suffixButton">
+
+          <input type="text" [formControl]="formControl" nz-input placeholder="https://" />
+
+        </nz-input-group>
+
+        <ng-template #suffixButton>
+
+          <button nz-button nzType="primary" nzSize="large" (click)="submit()" [disabled]="formControl.invalid" nzSearch>
+            Short!
+          </button>
+
+        </ng-template>
+
+      </nz-spin>
+
+    </div>
+
+  </div>
+
+  @if(isShorten) {
+    <br>
+
+    <div nz-row nzJustify="center" nzAlign="middle">
+
+      <div nz-col>
+
+        <p>Get your link ! (QR code / Direct link)</p>
+
+      </div>
+
+    </div>
+
+    <div nz-row nzJustify="center" nzAlign="middle">
+
+      <div nz-col>
+
+        <nz-space nzDirection="vertical">
+
+          <nz-card *nzSpaceItem nzTitle="Direct link">
+
+            <a [href]="finalUrl">{{ finalUrl }}</a>
+
+          </nz-card>
+
+          <nz-card *nzSpaceItem nzTitle="QR Code">
+
+            <div nz-row nzJustify="center" nzAlign="middle">
+
+              <div nz-col>
+
+                <nz-qrcode [nzValue]="finalUrl"/>
+
+              </div>
+
+            </div>
+
+          </nz-card>
+
+        </nz-space>
+
+      </div>
+
+    </div>
+  }
+
+</main>
+
+<router-outlet></router-outlet>
