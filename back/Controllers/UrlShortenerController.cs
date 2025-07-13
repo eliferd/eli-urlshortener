@@ -1,4 +1,5 @@
-﻿using System.Web;
+﻿using System.Text.Json;
+using System.Web;
 using EliURLShortenerApi.Models;
 using EliURLShortenerApi.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -24,15 +25,15 @@ namespace EliURLShortenerApi.Controllers
                 return NotFound();
             }
 
-            return Uri.UnescapeDataString(url.OriginalUrl);
+            return Ok(JsonSerializer.Serialize(Uri.UnescapeDataString(url.OriginalUrl)));
         }
 
-        [HttpPost("{url}")]
-        public ActionResult<string> CreateUrl(string url)
+        [HttpPost("/")]
+        public ActionResult<string> CreateUrl([FromBody] string url)
         {
             Url urlObj = this._urlService.Create(url);
 
-            return Ok(urlObj.Id);
+            return Ok(JsonSerializer.Serialize(urlObj.Id));
         }
     }
 }
