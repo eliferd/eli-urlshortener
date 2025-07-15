@@ -10,8 +10,10 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
+        builder.Configuration.AddEnvironmentVariables();
+
         // Add services to the container.
-        var connectionString = builder.Environment.IsDevelopment() ? "Dev" : "Production";
+        var connectionString = builder.Environment.IsDevelopment() ? "Dev" : "Production"; // Production string obviously omitted from appsettings.json as it is set by machine env var
         builder.Services.AddDbContext<UrlDbContext>(option => option.UseNpgsql(builder.Configuration.GetConnectionString(connectionString)));
         builder.Services.AddScoped<IUrlRepository<Url>, UrlRepository>();
         builder.Services.AddScoped<IUrlService<Url>, UrlService>();
@@ -24,14 +26,10 @@ public class Program
 
         var app = builder.Build();
 
-        // Auto migrating the database when in production
-        if (app.Environment.IsProduction())
+        using (var scope = app.Services.CreateScope())
         {
-            using (var scope = app.Services.CreateScope())
-            {
-                var db = scope.ServiceProvider.GetRequiredService<UrlDbContext>();
-                db.Database.Migrate();
-            }
+            var db = scope.ServiceProvider.GetRequiredService<UrlDbContext>();
+            db.Database.Migrate();
         }
 
         // Configure the HTTP request pipeline.
