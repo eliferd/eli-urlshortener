@@ -1,3 +1,3 @@
 export const environment = {
-  api: "https://localhost:7134",
+  api: "https://url-api.eliferd.fr",
 };
