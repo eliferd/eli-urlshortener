@@ -46,7 +46,13 @@ public class Program
             {
                 options.AllowAnyOrigin();
                 options.AllowAnyHeader();
+            } else
+            {
+                options.WithOrigins("https://url.eliferd.fr")
+                .AllowAnyHeader()
+                .AllowAnyMethod();
             }
+            
         });
 
         app.UseHttpsRedirection();
